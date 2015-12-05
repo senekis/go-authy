@@ -96,6 +96,22 @@ func (authy *Authy) RequestPhoneCall(userId int, params url.Values) (*PhoneCallR
 	return smsVerification, err
 }
 
+func (authy *Authy) PhoneIntelligence(countryCode int, phoneNumber string, params url.Values) (*PhoneInfo, error) {
+	path := "/protected/json/phones/info"
+
+	params.Add("country_code", strconv.Itoa(countryCode))
+	params.Add("phone_number", phoneNumber)
+
+	response, err := authy.DoRequest("GET", path, params)
+	if err != nil {
+		return nil, err
+	}
+
+	defer response.Body.Close()
+	phoneInfo, err := NewPhoneInfoRequest(response)
+	return phoneInfo, err
+}
+
 func (authy *Authy) DoRequest(method string, path string, params url.Values) (*http.Response, error) {
 	apiUrl := authy.buildUrl(path)
 
